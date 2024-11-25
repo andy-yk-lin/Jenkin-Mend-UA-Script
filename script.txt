@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    environment {
+        WS_APIKEY = "${WS_APIKEY}"
+        WS_WSS_URL = "https://saas.whitesourcesoftware.com/agent" // WhiteSource URL
+        WS_USERKEY = "${WS_USERKEY}"
+        PROJECT_TOKEN = '3a36d4d8ced7499c81d5276efd7cf659732f2987defd4ad88886e1825fe3e361' // 你的 projectToken
+        requestType = 'getProjectRiskReport' // API Request Type
+        filename = 'risk-report' // 下載報告的文件名
+    }
+    stages {
+        stage('Download Unified Agent') {
+            steps {
+                sh 'curl -LJO https://unified-agent.s3.amazonaws.com/wss-unified-agent.jar'
+            }
+        }
+        stage('Run Unified Agent') {
+            steps {
+                sh 'java -jar wss-unified-agent.jar'
+            }
+        }
+        stage('Get Risk Report') {
+            steps {
+                withEnv(["WS_PRODUCTNAME=${env.WS_PRODUCTNAME}", "WS_PROJECTNAME=${env.WS_PROJECTNAME}", "PROJECT_TOKEN=${env.PROJECT_TOKEN}"]) {
+                    sh '''
+                        curl -LJO -X POST \
+                            -H "content-type:application/json" \
+                            -d '{"requestType": "'"${requestType}"'", "userKey": "'"${WS_USERKEY}"'", "projectToken": "'"${PROJECT_TOKEN}"'"}' \
+                            https://saas.whitesourcesoftware.com/api/v1.4
+                    '''
+                    sh 'mv v1.4 ${filename}.pdf'
+                }
+            }
+        }
+    }
+}
