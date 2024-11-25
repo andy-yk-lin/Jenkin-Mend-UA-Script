@@ -4,7 +4,7 @@ pipeline {
         WS_APIKEY = "${WS_APIKEY}"
         WS_WSS_URL = "https://saas.whitesourcesoftware.com/agent" // WhiteSource URL
         WS_USERKEY = "${WS_USERKEY}"
-        PROJECT_TOKEN = '3a36d4d8ced7499c81d5276efd7cf659732f2987defd4ad88886e1825fe3e361' // 你的 projectToken
+        PROJECT_TOKEN = 'projectToken' // 你的 projectToken
         requestType = 'getProjectRiskReport' // API Request Type
         filename = 'risk-report' // 下載報告的文件名
     }
